@@ -45,4 +45,8 @@ export class Option<T> {
     if (!this.#is_none) f(this.get())
     return this
   }
+
+  set<K>(val: K): Option<K> {
+    return new Option(val)
+  }
 }

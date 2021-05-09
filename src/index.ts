@@ -1,26 +1,31 @@
 import { get_args } from "./args";
-import { inter_color, parse_color, Routine } from "./lights";
+import { Routine } from "./routine";
 import {for_pairs} from "./common"
+import { get_devices } from "./device";
+import { inter_color, parse_color } from "./color";
 // import { firefox as browser } from "playwright";
 
 const main = () => new Promise<boolean>(async (res, _) => {
+  const devices = await get_devices()
   const args = get_args()
   console.dir(args)
   const target_colors = ["#0084ff", "#ff0000"]// ["#55CDFC", "#FFFFFF", "#F7A8B8"]
   const routine = new Routine(
       for_pairs(target_colors.concat([target_colors[0]])
         .map(parse_color)
-        .map(o => o.get()), inter_color(50))
+        .map(o => o.get()), inter_color(40))
         .reduce((r, a) => r.concat(a), []),
-      150
+        devices,
+      200
     );
 
   routine.start()
 
   setTimeout(() => {
     routine.stop()
-    res(true)
-  }, 10000)
+    // res(true)
+  }, 5000)
+  setTimeout(() => res(true), 10000)
   /*const inst = await browser.launch({
     headless: true
   });
@@ -37,7 +42,7 @@ const main = () => new Promise<boolean>(async (res, _) => {
 main()
   .then(() => {
     const def_color = "#E91E63"
-  parse_color(def_color).with(c => Routine.change_color(c).then(() => process.exit(0)))
+  parse_color(def_color).with(c => get_devices().then(ds => ds.forEach(d => d.set_color(c))).then(() => process.exit(0)))
   })
   .catch((e) => {
     console.dir(e);
